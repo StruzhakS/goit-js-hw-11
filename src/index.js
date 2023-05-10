@@ -54,6 +54,7 @@ function onLoadMoreImage(e) {
 }
 
 async function fetchPictures(name) {
+  loadMoreBtn.classList.add('is-hidden');
   PARAMS.set('q', name);
   const url = BASE_URL + PARAMS;
   const res = await fetch(url);
