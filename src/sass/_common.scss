@@ -1,1 +1,30 @@
 @import '~node_modules/modern-normalize/modern-normalize.css';
+
+button {
+    cursor: pointer;
+}
+
+.photo-card {
+    width: 300px;
+}
+.info {
+    max-width: 300px;
+    display: flex;
+   justify-content: space-between;
+   font-size: 14px;
+   text-align: center;
+}
+.gallery {
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+justify-content: space-around;
+gap: 10px;}
+
+img {
+    width: 340px;
+    height: 215px;
+}
+.is-hidden {
+    visibility: hidden;
+}
