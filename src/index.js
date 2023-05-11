@@ -1,18 +1,12 @@
-import axios from 'axios';
 import Notiflix from 'notiflix';
-import { createMarkup, imagesMarkup } from './js/helpers';
-
+import { fetchPictures } from './js/fetchPicturs';
 const formEl = document.querySelector('.search-form');
 const userInput = formEl.elements.searchQuery;
-const submitBtn = document.querySelector('.submit');
 const pictureGallery = document.querySelector('.gallery');
-const infoGallery = document.querySelector('.info');
 const loadMoreBtn = document.querySelector('.load-more');
 const BASE_URL = ` https://pixabay.com/api/?`;
 let numberPage = 1;
 let query = '';
-let totalPages;
-let totalHits;
 const totalItemsPerPage = 40;
 loadMoreBtn.classList.add('is-hidden');
 
@@ -26,12 +20,17 @@ const PARAMS = new URLSearchParams({
   per_page: totalItemsPerPage,
 });
 
-formEl.addEventListener('submit', e => {
+formEl.addEventListener('submit', onSearchImages);
+
+function onSearchImages(e) {
   e.preventDefault();
+  loadMoreBtn.classList.add('is-hidden');
   numberPage = 1;
   PARAMS.set('page', numberPage);
   pictureGallery.innerHTML = '';
   query = userInput.value;
+  PARAMS.set('q', query);
+  const url = BASE_URL + PARAMS;
 
   if (!query) {
     pictureGallery.innerHTML = '';
@@ -41,60 +40,14 @@ formEl.addEventListener('submit', e => {
     loadMoreBtn.classList.add('is-hidden');
     return;
   }
-
-  fetchPictures(query);
+  fetchPictures(query, url, numberPage);
   formEl.reset();
-});
-
+}
 loadMoreBtn.addEventListener('click', onLoadMoreImage);
-function onLoadMoreImage(e) {
+
+function onLoadMoreImage() {
   numberPage += 1;
   PARAMS.set('page', numberPage);
-  fetchPicturesOnLoadMore(query);
-}
-
-async function fetchPictures(name) {
-  loadMoreBtn.classList.add('is-hidden');
-  PARAMS.set('q', name);
   const url = BASE_URL + PARAMS;
-  const res = await fetch(url);
-  const data = await res.json();
-  const markup = imagesMarkup(data);
-  pictureGallery.insertAdjacentHTML('beforeend', markup);
-  totalHits = data.totalHits;
-
-  if (totalHits === 0) {
-    Notiflix.Notify.failure(
-      'Sorry, there are no images matching your search query. Please try again.'
-    );
-    loadMoreBtn.classList.add('is-hidden');
-
-    return;
-  }
-  Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
-  if (totalHits <= totalItemsPerPage) {
-    loadMoreBtn.classList.add('is-hidden');
-    return;
-  }
-  loadMoreBtn.classList.remove('is-hidden');
-}
-
-async function fetchPicturesOnLoadMore(name) {
-  PARAMS.set('q', name);
-  const url = BASE_URL + PARAMS;
-  const res = await fetch(url);
-  const data = await res.json();
-  const markup = imagesMarkup(data);
-  pictureGallery.insertAdjacentHTML('beforeend', markup);
-  totalPages = Math.ceil(totalHits / totalItemsPerPage);
-
-  if (data.totalHits <= totalItemsPerPage) {
-    loadMoreBtn.classList.add('is-hidden');
-    return;
-  }
-  if (totalPages === numberPage) {
-    loadMoreBtn.classList.add('is-hidden');
-    return;
-  }
-  loadMoreBtn.classList.remove('is-hidden');
+  fetchPictures(query, url, numberPage);
 }
